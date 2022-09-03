@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\Wave">
+      <UniqueIdentifier>{38773ace-8333-4326-93e4-cafa3c3beeed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Wave\WaveFmt">
+      <UniqueIdentifier>{a0543bf9-3312-4752-b1c7-cc28c8d8afc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Wave\Asio">
+      <UniqueIdentifier>{f6eadfdc-57c9-46aa-a0af-22326410799b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Wave\MME">
+      <UniqueIdentifier>{ae56200f-2b23-4efe-8511-fdc5ab839d9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Wave">
+      <UniqueIdentifier>{cdc53a89-762a-4549-90e4-a56fec327aa4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Wave\WaveFmt">
+      <UniqueIdentifier>{5be2d202-a559-4233-9f00-5544b188faf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Wave\Asio">
+      <UniqueIdentifier>{9992e229-5ca6-424e-9920-93bdf693a04b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Wave\MME">
+      <UniqueIdentifier>{997a1c28-74e4-4a5d-aeb9-1a2bb27d2674}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Common">
+      <UniqueIdentifier>{56c5382b-bd5b-40ba-afc8-c185de60956a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Common">
+      <UniqueIdentifier>{d3cddf68-e424-49af-826e-091e9ded4501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Wave\WaveStream">
+      <UniqueIdentifier>{6e72470a-5d8b-41a4-9471-aa274d342672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\FileFormats">
+      <UniqueIdentifier>{e903094a-8aae-4f36-8fcc-eec32bba4e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\FileFormats\Wav">
+      <UniqueIdentifier>{691d67c4-f108-420a-bff9-37c61754450e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utils">
+      <UniqueIdentifier>{9042eff2-cb7c-42f0-b9da-1960d7af04cd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WaveFormat.cpp">
+      <Filter>源文件\Wave\WaveFmt</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WaveFormat.h">
+      <Filter>头文件\Wave\WaveFmt</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFormatEncoding.h">
+      <Filter>头文件\Wave\WaveFmt</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFormatExtraData.h">
+      <Filter>头文件\Wave\WaveFmt</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryReader.h">
+      <Filter>头文件\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryWriter.h">
+      <Filter>头文件\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveStream.h">
+      <Filter>头文件\Wave\WaveStream</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFileReader.h">
+      <Filter>头文件\Wave\WaveStream</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFileWriter.h">
+      <Filter>头文件\Wave\WaveStream</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFileChunkReader.h">
+      <Filter>头文件\FileFormats\Wav</Filter>
+    </ClInclude>
+    <ClInclude Include="RiffChunk.h">
+      <Filter>头文件\Wave\WaveStream</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkIdentifier.h">
+      <Filter>头文件\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

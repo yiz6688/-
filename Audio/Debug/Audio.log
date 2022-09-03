@@ -1,0 +1,7 @@
+﻿  Main.cpp
+  The contents of <string_view> are available only with C++17 or later.
+C:\Code\C++\Audio\Audio\Main.cpp(25,9): error C2248: “std::basic_ios<char,std::char_traits<char>>::basic_ios”: 无法访问 protected 成员(在“std::basic_ios<char,std::char_traits<char>>”类中声明)
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\include\ios(160): message : 参见“std::basic_ios<char,std::char_traits<char>>::basic_ios”的声明
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\include\iosfwd(218): message : 参见“std::basic_ios<char,std::char_traits<char>>”的声明
+  WaveFormat.cpp
+  正在生成代码...

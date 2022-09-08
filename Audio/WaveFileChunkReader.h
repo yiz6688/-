@@ -24,6 +24,15 @@ public:
 	void ReadWaveHeader(streambuf& buf)
 	{
 
+		//先获取当前位置
+		streampos curpos = buf.pubseekoff(0, ios_base::cur);
+
+		//流的长度
+		streampos size = buf.pubseekoff(0, ios_base::end);
+
+		buf.pubseekpos(curpos);   //恢复到原来的位置。
+
+
 		this->dataChunkPosition = -1;
 		//this->waveFormat = nullptr;
 
@@ -39,33 +48,35 @@ public:
 		
 		if (isRf64)
 		{
-			ReadDs64Chunk(br);
+			//ReadDs64Chunk(br);
 		}
 		int dataChunkId = ChunkIdentifier::ChunkIdentifierToInt32("data");
 		int formatChunkId = ChunkIdentifier::ChunkIdentifierToInt32("fmt ");
 
-		//流的长度
-		streampos size =  buf.pubseekoff(0, ios_base::end);
 		
-		buf.pubseekpos(0, ios_base::beg);   //恢复到头位置。
 
 
 
-		long stopPosition = std::min<long>(riffSize + 8, size);  //****
-		while (stream.pubseekpos() <= stopPosition - 8)
+		long stopPosition = std::min<long>(riffSize + 8, size);  //前8个字节不在riffsize 内。
+
+		streampos Position;
+
+		while ( (Position = buf.pubseekoff(0, ios_base::cur) ) <= stopPosition - 8)
 		{
 			int chunkIdentifier = br.ReadInt32();
 			int chunkLength = br.ReadInt32();   //read uint;  少方法
 			if (chunkIdentifier == dataChunkId)
 			{
-				dataChunkPosition = stream.Position;
+				dataChunkPosition = Position;
 
 				if (!isRf64)
 				{
 					dataChunkLength = chunkLength;
 				}
 
-				streamPosition += chunkLength;
+				//重新设置流的位置
+				Position += chunkLength;
+				buf.pubseekpos(Position);
 
 			}
 			else if (chunkIdentifier == formatChunkId)
@@ -78,7 +89,7 @@ public:
 			}
 			else
 			{
-				if (chunkLength > stream.Length - stream.Position)
+				if (chunkLength > size - Position)
 				{
 					if (this->strictMode)
 					{
@@ -91,18 +102,21 @@ public:
 					if (chunkLength > INT32_MAX)
 					{
 						throw std::invalid_argument("RiffChunk chunk length must be between 0 and");
-						riffChunks.push_back(GetRiffChunk(stream, chunkIdentifier, (int)chunkLength));
+						riffChunks.push_back(GetRiffChunk(buf, chunkIdentifier, (int)chunkLength));
 					}
 				}
-				stream.Position += chunkLength;
+
+				//重新设置流的位置
+				Position += chunkLength;
+				buf.pubseekpos(Position);
 			}
 			
 		}
-
-		if (waveFormat == null)
+		//这里将来另做处理， 要进行为空判断
+		/*if (waveFormat == null)
 		{
 			throw std::invalid_argument("Invalid WAV file - No fmt chunk found");
-		}
+		}*/
 
 		if (dataChunkPosition == -1)
 		{
@@ -114,9 +128,11 @@ public:
 
 
 
-	RiffChunk GetRiffChunk(istream stream, int chunkIdentifier, int chunkLength)
+	RiffChunk GetRiffChunk(streambuf &buf, int chunkIdentifier, int chunkLength)
 	{
-		return RiffChunk(chunkIdentifier, chunkLength, stream.Position);
+		//当前流的位置
+		streampos Position = buf.pubseekoff(0, ios_base::cur);
+		return RiffChunk(chunkIdentifier, chunkLength, Position);
 	}
 
 

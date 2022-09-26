@@ -11,6 +11,12 @@ using std::vector;
 template<typename T1, typename T2>
 struct point
 {
+	point(T1 _X, T2  _Y)
+	{
+		this->X = _X;
+		this->Y = _Y;
+	}
+
 	T1 X;
 	T2 Y;
 };
@@ -33,7 +39,7 @@ public:
 
 
 public:
-	virtual void cmp(Curve<T>& c) = 0;
+	virtual void CurveCmp(Curve<T>& c) = 0;
 
 	virtual void opera(Curve<T>& c, func f) = 0;
 
@@ -43,5 +49,6 @@ public:
 
 	//virtual void vector<double> getYlst() {};
 
+	virtual T Conver(T x) = 0;
 
 };

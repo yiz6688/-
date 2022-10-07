@@ -7,8 +7,5 @@ using namespace std;
 int main()
 {
 
-	stringCurve sc;
-
-
-	cout << "aabnb" << endl;
+	doubleCurve::Test();
 }

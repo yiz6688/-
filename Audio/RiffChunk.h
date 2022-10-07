@@ -15,6 +15,15 @@ public:
 
 	}
 
+	long  getStreamPosition()
+	{
+		return StreamPosition;
+	}
+
+	int getLength()
+	{
+		return Length;
+	}
 
 private:
 	int Identifier;

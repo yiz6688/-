@@ -5,12 +5,13 @@
 #include<ostream>
 #include "BinaryReader.h"
 
+
 namespace Wave {
 
     class WaveFormat
     {
  
-    protected:
+    public:
         /// <summary>音频格式类型</summary>
         WaveFormatEncoding waveFormatTag;
         /// <summary>通道数</summary>
@@ -89,22 +90,8 @@ namespace Wave {
             return wf;
         }
 
-        /// <summary>
-        /// Reads in a WaveFormat (with extra data) from a fmt chunk (chunk identifier and
-        /// length should already have been read)
-        /// </summary>
-        /// <param name="br">Binary reader</param>
-        /// <param name="formatChunkLength">Format chunk length</param>
-        /// <returns>A WaveFormatExtraData</returns>
-        static WaveFormat FromFormatChunk(BinaryReader br, int formatChunkLength)
-        {
-            WaveFormatExtraData waveFormat;
-            waveFormat.ReadWaveFormat(br, formatChunkLength);
-            waveFormat.ReadExtraData(br);
-            
-            return waveFormat;
-        }
-
+        static WaveFormat FromFormatChunk(BinaryReader br, int formatChunkLength);
+    public:
          void ReadWaveFormat(BinaryReader br, int formatChunkLength)
         {
             if (formatChunkLength < 16)
@@ -112,6 +99,7 @@ namespace Wave {
                 throw std::invalid_argument::invalid_argument("Invalid WaveFormat Structure");
             }
             waveFormatTag = (WaveFormatEncoding)br.ReadInt16();
+            channels = br.ReadInt16();
             sampleRate = br.ReadInt32();
             averageBytesPerSecond = br.ReadInt32();
             blockAlign = br.ReadInt16();

@@ -3,7 +3,11 @@
 using std::vector;
 
 
-
+enum class CmpType
+{
+	UPLIMIT,
+	LOWLIMIT
+};
 
 
 

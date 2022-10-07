@@ -23,15 +23,16 @@ public:
 
 	void ReadWaveHeader(streambuf& buf)
 	{
-
+		streampos Position;
 		//先获取当前位置
 		streampos curpos = buf.pubseekoff(0, ios_base::cur);
 
 		//流的长度
 		streampos size = buf.pubseekoff(0, ios_base::end);
 
-		buf.pubseekpos(curpos);   //恢复到原来的位置。
+		Position = buf.pubseekpos(curpos);   //恢复到原来的位置。
 
+		
 
 		this->dataChunkPosition = -1;
 		//this->waveFormat = nullptr;
@@ -40,8 +41,15 @@ public:
 
 		BinaryReader br(&buf);
 
+		ReadRiffHeader(br);
+
+
 		this->riffSize = br.ReadInt32();
-		if (br.ReadInt32() != ChunkIdentifier::ChunkIdentifierToInt32("WAVE"))
+
+
+		int temp = br.ReadInt32();
+
+		if (temp != ChunkIdentifier::ChunkIdentifierToInt32("WAVE"))
 		{
 			throw std::exception("Not a WAVE file - no WAVE header");
 		}
@@ -54,14 +62,14 @@ public:
 		int formatChunkId = ChunkIdentifier::ChunkIdentifierToInt32("fmt ");
 
 		
-
+		
 
 
 		long stopPosition = std::min<long>(riffSize + 8, size);  //前8个字节不在riffsize 内。
 
-		streampos Position;
+		//streampos Position;
 
-		while ( (Position = buf.pubseekoff(0, ios_base::cur) ) <= stopPosition - 8)
+		while ( (Position = buf.pubseekoff(0, ios_base::cur, ios_base::in) ) <= stopPosition - 8)
 		{
 			int chunkIdentifier = br.ReadInt32();
 			int chunkLength = br.ReadInt32();   //read uint;  少方法
@@ -75,17 +83,18 @@ public:
 				}
 
 				//重新设置流的位置
-				Position += chunkLength;
-				buf.pubseekpos(Position);
+				//Position += chunkLength;
+				//buf.pubseekpos(Position);
+				Position = buf.pubseekoff(chunkLength, ios_base::cur);
 
 			}
 			else if (chunkIdentifier == formatChunkId)
 			{
 				if (chunkLength > INT32_MAX)
 				{
-					throw new invalid_argument("Format chunk length must be between 0 and intmax");
-					waveFormat = WaveFormat::FromFormatChunk(br, int(chunkLength));
+					throw new invalid_argument("Format chunk length must be between 0 and intmax");				
 				}
+				waveFormat = WaveFormat::FromFormatChunk(br, int(chunkLength));
 			}
 			else
 			{
@@ -107,8 +116,13 @@ public:
 				}
 
 				//重新设置流的位置
-				Position += chunkLength;
-				buf.pubseekpos(Position);
+				//Position += chunkLength;
+				//buf.pubseekpos(Position);
+				Position = buf.pubseekoff(chunkLength, ios_base::cur);
+				//for(int i=0;i<chunkLength ;i++)
+				//	buf.snextc();
+				
+				
 			}
 			
 		}
@@ -126,7 +140,11 @@ public:
 
 	}
 
+	 WaveFormat* GetWaveFormat()
+	{
+		return &waveFormat;
 
+	}
 
 	RiffChunk GetRiffChunk(streambuf &buf, int chunkIdentifier, int chunkLength)
 	{

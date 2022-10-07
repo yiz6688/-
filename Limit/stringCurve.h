@@ -6,11 +6,15 @@
 class stringCurve :public Curve<std::string>
 {
 public:
-	stringCurve();
+	stringCurve(vector<std::string> x_lst, vector<double> y_lst);
 
-	void CurveCmp(Curve<std::string>& c) {};
+	stringCurve(std::string* arr_x, double* arr_y, int arrlen);
 
-	void opera(Curve<std::string>& c, func f) {};
+	stringCurve(const stringCurve& dc);
+
+	void CurveCmp(Curve<std::string>& c);
+
+	void opera(Curve<std::string>& c, func f);
 
 	std::string Conver(std::string x);
 

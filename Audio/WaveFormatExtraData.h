@@ -1,11 +1,16 @@
 #pragma once
-#include"WaveFormat.h"
+
+#include "WaveFormat.h"
+
 namespace Wave
 {
-	class WaveFormatExtraData : public WaveFormat
+	
+
+	class WaveFormatExtraData :  public WaveFormat
 	{
 	private:
 		char* extraData;
+
 	public:
 		void ReadExtraData(BinaryReader &br)
 		{

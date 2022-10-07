@@ -31,9 +31,12 @@ private:
 	
 
 public:
+	static void Test();
+
+public:
 	doubleCurve(vector<double> x_lst, vector<double> y_lst);
 
-	doubleCurve(double* arr_x, int xlen, double* arr_y, int ylen);
+	doubleCurve(double* arr_x, double* arr_y, int arrlen);
 
 	doubleCurve(const doubleCurve& dc);
 
@@ -43,5 +46,7 @@ public:
 
 	double Conver(double x);
 
-	void opera(Curve<double>& c, func f) {};
+	point<double, double> Conver(point<double, double> p);
+
+	void opera(Curve<double>& c, func f) ;
 };

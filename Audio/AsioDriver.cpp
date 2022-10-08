@@ -14,14 +14,45 @@
 #define DRVERR_DEVICE_NOT_FOUND		DRVERR-3
 
 
-void Asio::Init()
+IASIO* AsioDriver::iasio;
+
+long AsioDriver::inputChannels;
+
+long AsioDriver::outputChannels;
+
+long AsioDriver::minSize;
+
+long AsioDriver::maxSize;
+
+long AsioDriver::preferredSize;
+
+long AsioDriver::granularity;
+
+ASIOSampleRate AsioDriver::sampleRate;
+
+long AsioDriver::inputLatency;
+
+long AsioDriver::outputLatency;
+
+long AsioDriver::inputBuffers;
+
+long AsioDriver::outputBuffers;
+
+vector<ASIOBufferInfo> AsioDriver::bufferInfos;
+
+vector<ASIOChannelInfo> AsioDriver::channelInfos;
+
+vector<DriverInfo> AsioDriver::driverInfos;
+
+
+void AsioDriver::Init()
 {
 	getDriverList();
 
 	if (driverInfos.empty() == false) CoInitialize(0);	// 初始化COM
 }
 
-void Asio::OpenDriver(int drvID)
+void AsioDriver::OpenDriver(int drvID)
 {
 	if (drvID > driverInfos.size())
 	{
@@ -30,17 +61,16 @@ void Asio::OpenDriver(int drvID)
 
 	DriverInfo info = driverInfos.at(drvID);   //获取对应的驱动信息，这里没有进行判断处理
 
-	LPVOID* asiodrv;
 
 	HRESULT res;
 
 	if (info.asiodrv == nullptr)
 	{
-		res = CoCreateInstance(info.clsid, 0, CLSCTX_INPROC_SERVER, info.clsid, (LPVOID*)(&info.asiodrv));
+		res = CoCreateInstance(info.clsid, 0, CLSCTX_INPROC_SERVER, info.clsid, (LPVOID*)(&iasio));
 
 		if (res == S_OK)
 		{
-			//info.asiodrv = (IASIO*)(*asiodrv);
+			info.asiodrv = iasio;
 		}
 	}
 	else
@@ -50,16 +80,39 @@ void Asio::OpenDriver(int drvID)
 	
 	void* handle = nullptr;
 	iasio->init(handle);   //初始化驱动
-
+	ASIOError ret;
 	char name[32];
+
+	char errMsg[256];
+
 	iasio->getDriverName(name);
 
-	iasio->getBufferSize(&minSize , &maxSize, &preferredSize , &granularity);   //获取缓冲区
+	ret = iasio->getBufferSize(&minSize , &maxSize, &preferredSize , &granularity);   //获取缓冲区
 
-	iasio->getLatencies(&inputLatency, &outputLatency);   //获取延时
+	if (ret != ASE_OK)
+	{
+		iasio->getErrorMessage(errMsg);
+		cout << errMsg << endl;
+		return;
+	}
 
-	iasio->getChannels(&inputChannels, &outputChannels);   //获取通道数
+	ret = iasio->getLatencies(&inputLatency, &outputLatency);   //获取延时
 
+	if (ret != ASE_OK)
+	{
+		iasio->getErrorMessage(errMsg);
+		cout << errMsg << endl;
+		return;
+	}
+
+	ret = iasio->getChannels(&inputChannels, &outputChannels);   //获取通道数
+
+	if (ret != ASE_OK)
+	{
+		iasio->getErrorMessage(errMsg);
+		cout << errMsg << endl;
+		return;
+	}
 	
 
 	for (int i = 0; i < inputChannels; i++)
@@ -85,10 +138,10 @@ void Asio::OpenDriver(int drvID)
 		ASIOBufferInfo bufferinfo;
 
 		channelinfo.isInput = ASIOFalse;
-		channelinfo.channel = i + inputChannels;
+		channelinfo.channel = i ;
 
 		bufferinfo.isInput = ASIOFalse;
-		bufferinfo.channelNum = i + inputChannels;
+		bufferinfo.channelNum = i ;
 
 		iasio->getChannelInfo(&channelinfo);
 
@@ -98,99 +151,97 @@ void Asio::OpenDriver(int drvID)
 	
 
 
-	
-
 	iasio->getSampleRate(&sampleRate);
 
+	int bufferlen = inputChannels + outputChannels;
 
-	ASIOBufferInfo* buffers = new ASIOBufferInfo[int(inputChannels + outputChannels)];
+	ASIOBufferInfo* buffers = new ASIOBufferInfo[bufferInfos.size()];
 	std::copy(bufferInfos.begin(), bufferInfos.end(), buffers);
 
 	ASIOCallbacks callback;
-	callback.bufferSwitch = nullptr;
+	callback.bufferSwitch = bufferSwitch;
+	callback.asioMessage = asioMessage;
+	callback.bufferSwitchTimeInfo = bufferSwitchTimeInfo;
+	callback.sampleRateDidChange = sampleRateDidChange;
 
 
 	iasio->createBuffers(buffers, inputChannels+outputChannels, preferredSize, &callback);
 
 
 
-
-
-
-
 }
 
-void Asio::CloseDriver()
+void AsioDriver::CloseDriver()
 {
 	//DriverInfo info;
 	//info.asiodrv->Release();
 }
 
-void Asio::GetInputChannels()
+void AsioDriver::GetInputChannels()
 {
 }
 
-int Asio::GetOutputChannels()
-{
-	return 0;
-}
-
-int Asio::GetInputLatency()
+int AsioDriver::GetOutputChannels()
 {
 	return 0;
 }
 
-int Asio::GetOutputLatency()
+int AsioDriver::GetInputLatency()
 {
 	return 0;
 }
 
-ASIOError Asio::GetSampleRate()
+int AsioDriver::GetOutputLatency()
+{
+	return 0;
+}
+
+ASIOError AsioDriver::GetSampleRate()
 {
 	return ASIOError();
 }
 
-ASIOError Asio::SetSampleRate()
+ASIOError AsioDriver::SetSampleRate()
 {
 	return ASIOError();
 }
 
-string Asio::GetErrorMessage()
+string AsioDriver::GetErrorMessage()
 {
 	return string();
 }
 
-ASIOError Asio::StartPlayBack(int nChannel, AudioAvailable callback)
+ASIOError AsioDriver::StartPlayBack(int nChannel, AudioAvailable callback)
 {
 	return ASIOError();
 }
 
-ASIOError Asio::StopPlayBack(int nChannel)
+ASIOError AsioDriver::StopPlayBack(int nChannel)
 {
 	return ASIOError();
 }
 
-ASIOError Asio::StartCapture(int nChannel, AudioAvailable callback)
+ASIOError AsioDriver::StartCapture(int nChannel, AudioAvailable callback)
 {
 	return ASIOError();
 }
 
-ASIOError Asio::StopCapture(int nChannel)
+ASIOError AsioDriver::StopCapture(int nChannel)
 {
 	return ASIOError();
 }
 
-int Asio::getChannels()
+int AsioDriver::getChannels()
 {
 	return 0;
 }
 
-int Asio::getLatencies()
+int AsioDriver::getLatencies()
 {
 	return 0;
 }
 
-void Asio::getDriverList()
+void AsioDriver::getDriverList()
 {
 	HKEY hkEnum = 0;
 	HKEY hkSub = 0;
@@ -206,7 +257,7 @@ void Asio::getDriverList()
 
 	while (cr == ERROR_SUCCESS)
 	{
-		if ((cr == RegEnumKey(hkEnum, index++, (LPTSTR)keyname, MAXDRVNAMELEN)) == ERROR_SUCCESS) {
+		if ((cr = RegEnumKey(hkEnum, index++, (LPTSTR)keyname, MAXDRVNAMELEN)) == ERROR_SUCCESS) {
 
 			if ((cr = RegOpenKeyEx(hkEnum, (LPCTSTR)keyname, 0, KEY_READ, &hkSub)) == ERROR_SUCCESS) {
 
@@ -222,9 +273,9 @@ void Asio::getDriverList()
 						datatype = REG_SZ; datasize = 256;
 						cr = RegQueryValueEx(hkSub, ASIODRV_DESC, 0, &datatype, (LPBYTE)databuf, &datasize);
 						if (cr == ERROR_SUCCESS) {
-							strcpy_s(info.drvname, databuf);
+							strcpy_s(info.drvname, MAXDRVNAMELEN, databuf);
 						}
-						else strcpy_s(info.drvname, keyname);
+						else strcpy_s(info.drvname,MAXDRVNAMELEN, keyname);
 
 						driverInfos.push_back(info);
 					}
@@ -239,17 +290,17 @@ void Asio::getDriverList()
 
 }
 
-void Asio::bufferSwitch(long doubleBufferIndex, ASIOBool directProcess)
+void AsioDriver::bufferSwitch(long doubleBufferIndex, ASIOBool directProcess)
 {
 }
 
 //这个代码要验证下是否正常生效
-void Asio::sampleRateDidChange(ASIOSampleRate sRate)
+void AsioDriver::sampleRateDidChange(ASIOSampleRate sRate)
 {
 	sampleRate = sRate;
 }
 
-long Asio::asioMessage(long selector, long value, void* message, double* opt)
+long AsioDriver::asioMessage(long selector, long value, void* message, double* opt)
 {
 	long ret = 0;
 	switch (selector)
@@ -311,7 +362,7 @@ long Asio::asioMessage(long selector, long value, void* message, double* opt)
 	return ret;
 }
 
-ASIOTime* Asio::bufferSwitchTimeInfo(ASIOTime* params, long doubleBufferIndex, ASIOBool directProcess)
+ASIOTime* AsioDriver::bufferSwitchTimeInfo(ASIOTime* params, long doubleBufferIndex, ASIOBool directProcess)
 {
 	return nullptr;
 }

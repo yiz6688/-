@@ -7,6 +7,7 @@
 #include"WaveFileReader.h"
 #include<fstream>
 #include<functional>
+#include"AsioDriver.h"
 using namespace std;
 
 
@@ -99,32 +100,8 @@ int main()
 
 	cout << file.tellg() << endl;*/
 
-
-	vector<info> vec;
-
-	info inf;
-	inf.inx = 0;
-	inf.arr[0] = new char[8]{ "aaa" };
-
-	inf.arr[1] = new char[8]{ "bbb" };
-	vec.push_back(inf);
-
-	inf.arr[0][1] = 'x';
-	inf.inx = 1;
-	
-	inf.arr[0] = new char[8]{ "ccc" };
-
-	inf.arr[1] = new char[8]{ "ddd" };
-
-	vec.push_back(inf);
-
-	info infs[2];
-
-
-	std::copy(vec.begin(), vec.end(), infs);
-
-	infs[0].inx = 3;
-	infs[0].arr[0][2] = 'e';
+	AsioDriver::Init();
+	AsioDriver::OpenDriver();
 
 	return 0;
 

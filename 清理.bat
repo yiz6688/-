@@ -1,0 +1,1 @@
+del /s *.obj *.ilk *.pdb *.idb *.tlog *.exe

@@ -18,6 +18,14 @@ using namespace std;
 
 struct DriverInfo
 {
+public:
+	DriverInfo()
+	{
+		asiodrv = nullptr;
+		memset(drvname, 0, MAXDRVNAMELEN);
+		memset(&clsid, 0, sizeof(clsid));
+	}
+
 	CLSID clsid;
 	char drvname[MAXDRVNAMELEN];
 	IASIO*	asiodrv;
@@ -41,7 +49,7 @@ struct OutputBufferInfo
 /// 受限于底层框架，当前类只能操作一个asio设备
 /// </summary>
 
-class Asio
+class AsioDriver
 {
 
 public:
@@ -130,32 +138,3 @@ private:
 	static vector<DriverInfo> driverInfos;
 };
 
-IASIO* Asio::iasio;
-
-long Asio::inputChannels;
-
-long Asio::outputChannels;
-
-long Asio::minSize;
-
-long Asio::maxSize;
-
-long Asio::preferredSize;
-
-long Asio::granularity;
-
-ASIOSampleRate Asio::sampleRate;
-
-long Asio::inputLatency;
-
-long Asio::outputLatency;
-
-long Asio::inputBuffers;
-
-long Asio::outputBuffers;
-
-vector<ASIOBufferInfo> Asio::bufferInfos;
-
-vector<ASIOChannelInfo> Asio::channelInfos;
-
-vector<DriverInfo> Asio::driverInfos;

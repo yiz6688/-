@@ -4,6 +4,10 @@
 #include"Asio/iasiodrv.h"
 #include"Asio/asio.h"
 #include<vector>
+#include "AsioInput.h"
+#include "AsioOutput.h"
+#include <mutex>
+#include "AsioAudioOutputAvaliableArgs.h"
 
 using namespace std;
 /// <summary>
@@ -45,15 +49,18 @@ struct OutputBufferInfo
 };
 
 
+
+typedef void(*AudioOutputAvailable)(AsioAudioOutputAvaliableArgs args);
 /// <summary>
 /// 受限于底层框架，当前类只能操作一个asio设备
+/// 先实现单设备的操作
 /// </summary>
 
 class AsioDriver
 {
 
 public:
-	typedef void(*AudioAvailable)();
+
 
 public:
 	static void Init();
@@ -77,11 +84,11 @@ public:
 
 	static string GetErrorMessage();
 
-	static ASIOError StartPlayBack(int nChannel, AudioAvailable callback);
+	static ASIOError StartPlayBack(int channelOffset, int channenNum, AudioInputAvailable callback);
 
-	static ASIOError StopPlayBack(int nChannel);
+	static ASIOError StopPlayBack(int channelOffset);
 
-	static ASIOError StartCapture(int nChannel, AudioAvailable callback);
+	static ASIOError StartCapture(int nChannel, AudioOutputAvailable callback);
 
 	static ASIOError StopCapture(int nChannel);
 
@@ -104,6 +111,8 @@ private:
 
 	static ASIOTime* bufferSwitchTimeInfo(ASIOTime* params, long doubleBufferIndex, ASIOBool directProcess);
 
+
+	static bool hasRuning();
 
 
 private:
@@ -136,5 +145,12 @@ private:
 	static vector<ASIOChannelInfo> channelInfos;
 
 	static vector<DriverInfo> driverInfos;
+
+	static vector<AsioInput> AsioInputs;
+
+	static vector<AsioOutput> AsioOutputs;
+
+	static mutex m;
+
 };
 

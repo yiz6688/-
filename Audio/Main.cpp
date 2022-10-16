@@ -84,6 +84,24 @@ struct info
 
 
 
+
+class rrr
+{
+
+public:
+	rrr(vector<int>& ccc) : temp(ccc)
+	{
+		
+	}
+
+private:
+	vector<int>& temp;
+
+};
+
+
+
+
 int main()
 {
 	//WaveFileReader wr("C:\\111\\waveFiles\\48k@16bit_mono_5s.wav");
@@ -100,8 +118,19 @@ int main()
 
 	cout << file.tellg() << endl;*/
 
-	AsioDriver::Init();
-	AsioDriver::OpenDriver();
+	//AsioDriver::Init();
+	//AsioDriver::OpenDriver();
+	vector<int>  bbb;
+	bbb.push_back(1);
+	bbb.push_back(2);
+	bbb.push_back(3);
+
+	bbb.resize(5,8);
+
+	for (int i : bbb)
+	{
+		cout << i << endl;
+	}
 
 	return 0;
 

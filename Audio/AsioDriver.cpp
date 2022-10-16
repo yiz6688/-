@@ -45,6 +45,12 @@ vector<ASIOChannelInfo> AsioDriver::channelInfos;
 vector<DriverInfo> AsioDriver::driverInfos;
 
 
+vector<AsioInput> AsioDriver::AsioInputs;
+
+vector<AsioOutput> AsioDriver::AsioOutputs;
+
+mutex AsioDriver::m;
+
 void AsioDriver::Init()
 {
 	getDriverList();
@@ -211,8 +217,11 @@ string AsioDriver::GetErrorMessage()
 	return string();
 }
 
-ASIOError AsioDriver::StartPlayBack(int nChannel, AudioAvailable callback)
+ASIOError AsioDriver::StartPlayBack(int channelOffset, int channenNum, AudioInputAvailable callback)
 {
+
+
+
 	return ASIOError();
 }
 
@@ -221,7 +230,7 @@ ASIOError AsioDriver::StopPlayBack(int nChannel)
 	return ASIOError();
 }
 
-ASIOError AsioDriver::StartCapture(int nChannel, AudioAvailable callback)
+ASIOError AsioDriver::StartCapture(int nChannel, AudioOutputAvailable callback)
 {
 	return ASIOError();
 }
@@ -289,9 +298,42 @@ void AsioDriver::getDriverList()
 
 
 }
-
+/// <summary>
+/// 回调函数，该函数是返回缓冲的索引，0 或 1
+/// 
+/// </summary>
+/// <param name="doubleBufferIndex"></param>
+/// <param name="directProcess"></param>
 void AsioDriver::bufferSwitch(long doubleBufferIndex, ASIOBool directProcess)
 {
+
+	vector<void*> buffers;
+	for (AsioInput input : AsioInputs)
+	{
+		if (input.isRuning)
+		{
+			buffers.clear();
+			int channelCount = input.channelCount;
+		
+			
+			for (int i = 0; i < channelCount; i++)
+			{
+				void* inputbuffer = AsioInputs[i].buffers[doubleBufferIndex];
+				buffers.push_back(inputbuffer);   //缓冲区集合
+			}
+			AsioAudioInputAvailableArgs args(buffers, preferredSize, input.type);
+			input.callback(args);
+		}
+		
+		
+
+	}
+
+
+
+
+
+
 }
 
 //这个代码要验证下是否正常生效
@@ -365,5 +407,31 @@ long AsioDriver::asioMessage(long selector, long value, void* message, double* o
 ASIOTime* AsioDriver::bufferSwitchTimeInfo(ASIOTime* params, long doubleBufferIndex, ASIOBool directProcess)
 {
 	return nullptr;
+}
+
+bool AsioDriver::hasRuning()
+{
+	m.lock();
+
+	for (AsioInput input : AsioInputs)
+	{
+		if (input.isRuning)
+		{
+			return true;
+		}
+	}
+
+	for (AsioOutput output : AsioOutputs)
+	{
+		if (output.isRuning)
+		{
+			return true;
+		}
+	}
+
+	m.unlock();
+
+	return false;
+
 }
 

@@ -84,13 +84,13 @@ public:
 
 	static string GetErrorMessage();
 
-	static ASIOError StartPlayBack(int channelOffset, int channenNum, AudioInputAvailable callback);
+	static ASIOError StartCapture(int channelOffset, int channenNum, AudioInputAvailable callback);
 
-	static ASIOError StopPlayBack(int channelOffset);
+	static ASIOError StopCapture(int channelOffset);
 
-	static ASIOError StartCapture(int nChannel, AudioOutputAvailable callback);
+	static ASIOError StartPlayBack(int nChannel, AudioOutputAvailable callback);
 
-	static ASIOError StopCapture(int nChannel);
+	static ASIOError StopPlayBack(int nChannel);
 
 private:
 
@@ -152,5 +152,8 @@ private:
 
 	static mutex m;
 
+	static std::atomic<bool> isRuning;
+
 };
 
+ 

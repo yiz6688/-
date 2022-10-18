@@ -51,6 +51,8 @@ vector<AsioOutput> AsioDriver::AsioOutputs;
 
 mutex AsioDriver::m;
 
+std::atomic<bool> AsioDriver::isRuning;
+
 void AsioDriver::Init()
 {
 	getDriverList();
@@ -173,7 +175,34 @@ void AsioDriver::OpenDriver(int drvID)
 
 	iasio->createBuffers(buffers, inputChannels+outputChannels, preferredSize, &callback);
 
+	for (int i = 0; i < channelInfos.size(); i++)
+	{
+		if (channelInfos[i].isInput == ASIOTrue)
+		{
+			AsioInput Input;
+			Input.type = channelInfos[i].type;
+			Input.buffers[0] = bufferInfos[i].buffers[0];
+			Input.buffers[1] = bufferInfos[i].buffers[1];
+			strcpy_s(Input.name, 32, channelInfos[i].name);
+			Input.isRuning = false;
+			Input.channelNum = channelInfos[i].channel;
 
+			AsioInputs.push_back(Input);
+		}
+		else
+		{
+			AsioOutput Output;
+			Output.type = channelInfos[i].type;
+			Output.buffers[0] = bufferInfos[i].buffers[0];
+			Output.buffers[1] = bufferInfos[i].buffers[1];
+			strcpy_s(Output.name, 32, channelInfos[i].name);
+			Output.isRuning = false;
+			Output.channelNum = channelInfos[i].channel;
+
+			AsioOutputs.push_back(Output);
+		}
+		
+	}
 
 }
 
@@ -216,26 +245,60 @@ string AsioDriver::GetErrorMessage()
 {
 	return string();
 }
-
-ASIOError AsioDriver::StartPlayBack(int channelOffset, int channenNum, AudioInputAvailable callback)
+//²¥·Åº¯Êý
+ASIOError AsioDriver::StartCapture(int channelOffset, int channenNum, AudioInputAvailable callback)
 {
+	if (channelOffset >= AsioInputs.size() || channelOffset + channenNum >= AsioInputs.size())
+	{
+		return ASE_InvalidParameter;
+	}
+
+	std::lock_guard<std::mutex> LockGuard(m);
+	bool isRuning = false;
+	AsioInput Input = AsioInputs[channelOffset];
+	Input.channelCount = channenNum;
+	Input.callback = callback;
 
 
+	for (AsioInput &Input : AsioInputs)
+	{
+		if (Input.isRuning)
+		{
+			isRuning = true;
+			break;
+		}
+	}
+	if (isRuning == false)
+	{
+		for (AsioOutput &OutPut : AsioOutputs)
+		{
+			if (OutPut.isRuning)
+			{
+				isRuning = true;
+				break;
+			}
+		}
+	}
 
+	if (isRuning == false)
+	{
+		return iasio->start();
+	}
+
+	return ASIOTrue;
+}
+
+ASIOError AsioDriver::StopCapture(int nChannel)
+{
+	return ASIOError();
+}
+
+ASIOError AsioDriver::StartPlayBack(int nChannel, AudioOutputAvailable callback)
+{
 	return ASIOError();
 }
 
 ASIOError AsioDriver::StopPlayBack(int nChannel)
-{
-	return ASIOError();
-}
-
-ASIOError AsioDriver::StartCapture(int nChannel, AudioOutputAvailable callback)
-{
-	return ASIOError();
-}
-
-ASIOError AsioDriver::StopCapture(int nChannel)
 {
 	return ASIOError();
 }
@@ -308,7 +371,8 @@ void AsioDriver::bufferSwitch(long doubleBufferIndex, ASIOBool directProcess)
 {
 
 	vector<void*> buffers;
-	for (AsioInput input : AsioInputs)
+	std::lock_guard<std::mutex> LockGuard(m);
+	for (AsioInput &input : AsioInputs)
 	{
 		if (input.isRuning)
 		{
@@ -324,9 +388,6 @@ void AsioDriver::bufferSwitch(long doubleBufferIndex, ASIOBool directProcess)
 			AsioAudioInputAvailableArgs args(buffers, preferredSize, input.type);
 			input.callback(args);
 		}
-		
-		
-
 	}
 
 
